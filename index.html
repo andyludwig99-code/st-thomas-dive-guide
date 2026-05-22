@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>St. Thomas Dive Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#041524;--mid:#0a3352;--surf:#1a8ab4;--foam:#a8dff0;--coral:#e8724a;--gold:#f5c842;--white:#f0f8ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--deep);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(13,95,138,.25) 0%,transparent 60%),radial-gradient(ellipse at 80% 15%,rgba(26,138,180,.1) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+header{position:relative;z-index:10;text-align:center;padding:50px 20px 34px;border-bottom:1px solid rgba(168,223,240,.12)}
+.eyebrow{font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:var(--surf);font-weight:500;margin-bottom:14px}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,3.8rem);font-weight:400;line-height:1.1}
+h1 em{font-style:italic;color:var(--foam)}
+.subtitle{margin-top:12px;font-size:13px;color:rgba(168,223,240,.6);font-weight:300;letter-spacing:.04em}
+
+#status{position:relative;z-index:10;display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 20px 0;padding:13px 18px;background:rgba(13,95,138,.18);border:1px solid rgba(168,223,240,.14);border-radius:12px;font-size:13px;color:rgba(168,223,240,.75)}
+#status.done{display:none}
+.spin{width:16px;height:16px;border:2px solid rgba(168,223,240,.15);border-top-color:var(--surf);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+#prog{font-size:11px;color:var(--surf);font-weight:600;margin-left:auto}
+
+.controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:26px 20px 8px}
+.btn{background:rgba(13,95,138,.2);border:1px solid rgba(168,223,240,.18);color:rgba(168,223,240,.6);padding:7px 17px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;font-weight:500}
+.btn:hover,.btn.on{background:rgba(26,138,180,.38);border-color:var(--surf);color:var(--white);box-shadow:0 0 16px rgba(26,138,180,.22)}
+
+.search-wrap{position:relative;z-index:10;display:flex;justify-content:center;padding:12px 20px 20px}
+.search{background:rgba(13,95,138,.14);border:1px solid rgba(168,223,240,.18);color:var(--white);padding:10px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;width:100%;max-width:340px;outline:none;transition:all .2s}
+.search::placeholder{color:rgba(168,223,240,.35)}
+.search:focus{border-color:var(--surf);box-shadow:0 0 0 3px rgba(26,138,180,.12)}
+
+.count{position:relative;z-index:10;text-align:center;font-size:10px;letter-spacing:.15em;color:rgba(168,223,240,.28);text-transform:uppercase;padding-bottom:6px}
+
+.grid{position:relative;z-index:10;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;padding:8px 18px 60px;max-width:1300px;margin:0 auto}
+
+.card{background:linear-gradient(135deg,rgba(10,51,82,.7),rgba(7,30,52,.92));border:1px solid rgba(168,223,240,.1);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .28s,box-shadow .28s,border-color .28s;position:relative}
+.card:hover{transform:translateY(-4px) scale(1.016);box-shadow:0 16px 40px rgba(0,0,0,.45);border-color:rgba(168,223,240,.3)}
+
+.photo{width:100%;height:180px;background:#0a3352;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+.photo img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block}
+.card:hover .photo img{transform:scale(1.06)}
+.photo-ph{display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(168,223,240,.22)}
+.ph-spin{width:20px;height:20px;border:2px solid rgba(168,223,240,.1);border-top-color:rgba(168,223,240,.35);border-radius:50%;animation:spin 1s linear infinite}
+.ph-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.ph-emoji{font-size:44px;filter:opacity(.38)}
+
+.caution-badge{position:absolute;top:10px;right:10px;background:rgba(245,200,66,.88);color:#1a1200;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:100px;z-index:2}
+
+.info{padding:13px 16px 18px}
+.type{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--surf);font-weight:500;margin-bottom:3px}
+.name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--white);margin-bottom:2px}
+.latin{font-family:'Playfair Display',serif;font-style:italic;font-size:11px;color:rgba(168,223,240,.42);margin-bottom:8px}
+.desc{font-size:12px;line-height:1.6;color:rgba(168,223,240,.7);font-weight:300}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{font-size:9px;padding:3px 8px;border-radius:100px;font-weight:500;letter-spacing:.04em}
+.tag-d{background:rgba(13,95,138,.45);color:var(--foam);border:1px solid rgba(13,95,138,.8)}
+.tag-c{background:rgba(232,114,74,.18);color:#f5a882;border:1px solid rgba(232,114,74,.35)}
+.tag-w{background:rgba(245,200,66,.18);color:var(--gold);border:1px solid rgba(245,200,66,.4)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(4,21,36,.88);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:linear-gradient(160deg,#071e34,#041524);border:1px solid rgba(168,223,240,.17);border-radius:20px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;position:relative;transform:scale(.92) translateY(16px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 40px 80px rgba(0,0,0,.7)}
+.overlay.open .modal{transform:scale(1) translateY(0)}
+.modal::-webkit-scrollbar{width:3px}
+.modal::-webkit-scrollbar-thumb{background:rgba(168,223,240,.15);border-radius:2px}
+.modal-photo{width:100%;height:240px;background:#0a3352;border-radius:20px 20px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.modal-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-close{position:absolute;top:12px;right:12px;background:rgba(4,21,36,.65);border:1px solid rgba(168,223,240,.18);color:var(--foam);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:2;transition:all .18s;backdrop-filter:blur(4px)}
+.modal-close:hover{background:rgba(168,223,240,.18);transform:rotate(90deg)}
+.modal-body{padding:22px 24px 30px}
+.modal-type{font-size:9px;letter-spacing:.35em;text-transform:uppercase;color:var(--surf);font-weight:500;margin-bottom:5px}
+.modal-name{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:var(--white);margin-bottom:3px}
+.modal-latin{font-family:'Playfair Display',serif;font-style:italic;font-size:12px;color:rgba(168,223,240,.42);margin-bottom:18px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(168,223,240,.16),transparent);margin-bottom:18px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.fact{background:rgba(13,95,138,.2);border:1px solid rgba(168,223,240,.1);border-radius:10px;padding:12px}
+.fact-lbl{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--surf);margin-bottom:3px}
+.fact-val{font-family:'Playfair Display',serif;font-size:14px;color:var(--white)}
+.sec-title{font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--surf);font-weight:500;margin-bottom:6px;margin-top:14px}
+.sec-body{font-size:13px;line-height:1.7;color:rgba(168,223,240,.76);font-weight:300}
+.tip-box{background:rgba(232,114,74,.1);border:1px solid rgba(232,114,74,.22);border-radius:10px;padding:14px;margin-top:14px}
+.tip-lbl{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--coral);font-weight:500;margin-bottom:5px}
+.tip-body{font-size:12px;color:rgba(232,180,160,.88);line-height:1.62}
+.caution-box{background:rgba(245,200,66,.09);border:1px solid rgba(245,200,66,.22);border-radius:10px;padding:14px;margin-top:14px}
+.caution-lbl{font-size:8px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:5px}
+.caution-body{font-size:12px;color:rgba(245,220,130,.88);line-height:1.62}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .4s ease both}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">◆ Field Guide ◆ U.S. Virgin Islands</div>
+  <h1>Diving <em>St. Thomas</em></h1>
+  <p class="subtitle">20 aquatic species you're likely to encounter beneath the surface</p>
+</header>
+
+<div id="status">
+  <div class="spin"></div>
+  <span>Loading photos…</span>
+  <span id="prog">0 / 20</span>
+</div>
+
+<div class="controls">
+  <button class="btn on" data-f="all">All Species</button>
+  <button class="btn" data-f="fish">Fish</button>
+  <button class="btn" data-f="reef">Reef Creatures</button>
+  <button class="btn" data-f="elasmobranch">Sharks &amp; Rays</button>
+  <button class="btn" data-f="turtle">Sea Turtles</button>
+  <button class="btn" data-f="caution">⚠ Caution</button>
+</div>
+
+<div class="search-wrap">
+  <input class="search" id="search" placeholder="Search species…" autocomplete="off">
+</div>
+
+<div class="count" id="count">Showing 20 species</div>
+<div class="grid" id="grid"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="modal-close" id="mclose">✕</button>
+    <div id="mcontent"></div>
+  </div>
+</div>
+
+<script>
+const SPECIES = [
+  {id:1,  tid:47235,  emoji:"🐠", name:"Queen Angelfish",       latin:"Holacanthus ciliaris",     type:"fish",        caution:false, depth:"3–70 ft",      size:"Up to 18 in",        desc:"One of the most visually stunning reef fish in the Caribbean — electric blue and yellow with a distinctive spotted crown on the forehead.", details:"The Queen Angelfish is the crown jewel of Caribbean reefs. Its vivid coloration — brilliant blue and yellow with a characteristic blue-ringed black crown spot — makes it unmistakable. Often seen in pairs, grazing on sponges.", where:"Around coral reefs and rocky areas. Look near large barrel sponges and sea fans.", tip:"Approach slowly — they're curious but wary. They hover near coral heads and will often circle back if you remain still.", tags:[["Shallow & Deep","d"],["Very Common","c"]]},
+  {id:2,  tid:188767, emoji:"🦈", name:"Caribbean Reef Shark",  latin:"Carcharhinus perezi",      type:"elasmobranch", caution:true,  depth:"10–100 ft",    size:"Up to 8 ft",         desc:"The most commonly encountered shark on Caribbean reefs. Generally non-aggressive, but deserves respectful distance and calm behaviour.", details:"A stocky grey shark with a rounded snout — the apex predator on most St. Thomas reefs and an important sign of a healthy ecosystem. They move slowly and purposefully, often patrolling reef edges.", where:"Reef drop-offs, ledges, and outer reef walls. Common at Cow and Calf Rocks and Frenchcap Cay.", tip:"Maintain a calm, neutral posture. Never approach directly or corner one near a ledge. Avoid diving near spearfishing or fish blood.", tags:[["Mid & Deep","d"],["Caution","w"]]},
+  {id:3,  tid:39672,  emoji:"🐢", name:"Hawksbill Sea Turtle",  latin:"Eretmochelys imbricata",   type:"turtle",       caution:false, depth:"3–50 ft",      size:"Up to 3 ft shell",   desc:"An endangered sea turtle with a distinctive narrow, pointed beak. Frequently seen resting on coral or grazing on sponges.", details:"The Hawksbill is the most commonly encountered sea turtle while diving in St. Thomas. Its narrow hawk-like beak is perfectly adapted for extracting sponges from reef crevices. The overlapping scales form a beautiful mosaic of amber and brown.", where:"Found throughout reef systems. Often wedged under coral ledges resting, or moving slowly along the reef bottom.", tip:"Give them at least 10 feet of space. Never reach out to touch — it causes stress and is illegal. Watch for them near sponge-covered walls.", tags:[["Shallow & Mid","d"],["Endangered","w"]]},
+  {id:4,  tid:80195,  emoji:"🐡", name:"Porcupinefish",         latin:"Diodon hystrix",           type:"fish",        caution:false, depth:"5–60 ft",      size:"Up to 35 in",        desc:"A large, slow-moving fish covered in sharp spines. When threatened it inflates into a spiky sphere. Often seen hovering under ledges.", details:"The Porcupinefish is a gentle giant of the reef. During the day they rest under ledges or near coral heads. Their spines are always visible. They have large intelligent eyes and a beak-like mouth for crushing invertebrates.", where:"Under ledges, in reef caves, and near coral heads. Very common throughout St. Thomas reef systems.", tip:"Never stress or chase a porcupinefish into inflating — it can be fatal to the fish. They're docile and often allow close observation.", tags:[["All Depths","d"],["Very Common","c"]]},
+  {id:5,  tid:48473,  emoji:"🐟", name:"Yellowtail Snapper",    latin:"Ocyurus chrysurus",        type:"fish",        caution:false, depth:"10–100 ft",    size:"Up to 30 in",        desc:"A sleek silver fish with a bright yellow stripe and vivid yellow tail. Often seen in loose schools mid-water above the reef.", details:"One of the most recognizable Caribbean reef fish. The bold yellow lateral stripe and bright forked tail make them impossible to miss. They form shimmering schools of dozens hovering above coral formations.", where:"Mid-water above reef structures. Very abundant at most St. Thomas dive sites.", tip:"Schools will often swirl around divers who move slowly. A great subject for underwater photography due to their metallic flash.", tags:[["Mid & Deep","d"],["Very Common","c"]]},
+  {id:6,  tid:52725,  emoji:"🦑", name:"Caribbean Reef Squid",  latin:"Sepioteuthis sepioidea",   type:"reef",        caution:false, depth:"3–30 ft",      size:"Up to 8 in",         desc:"Intelligent, color-changing cephalopods that hover in small groups just above the reef, watching divers with clear curiosity.", details:"Caribbean Reef Squid communicate using rippling color patterns and can shift colors in milliseconds. They often approach divers out of curiosity, hovering at arm's length and tilting to get a better look.", where:"Open water just above reef structures, especially near seagrass beds and shallow reef edges.", tip:"Move very slowly and avoid sudden movements. They approach willingly if you remain still. Look for their rippling iridescent signaling patterns.", tags:[["Shallow","d"],["Very Common","c"]]},
+  {id:7,  tid:52728,  emoji:"🐙", name:"Caribbean Reef Octopus", latin:"Octopus briareus",        type:"reef",        caution:false, depth:"0–100 ft",     size:"Arm span to 24 in",  desc:"A master of camouflage, usually nocturnal but sometimes spotted during day dives tucked in reef crevices.", details:"One of the ocean's most intelligent animals. During the day they hide in small holes, sometimes with a midden of shells outside their den. Night dives offer far better sightings when they actively hunt.", where:"In holes and crevices throughout the reef. Look for disturbed rubble or a pile of clamshells as evidence of a den.", tip:"Look for the gleam of an eye in a dark crevice. If spotted, stop completely — they may come out to investigate. Never reach into holes.", tags:[["All Depths","d"],["Elusive","d"]]},
+  {id:8,  tid:43430,  emoji:"🦞", name:"Spiny Lobster",          latin:"Panulirus argus",          type:"reef",        caution:false, depth:"3–150 ft",     size:"Up to 24 in",        desc:"Large antenna-waving crustaceans often clustered in ledge crevices during the day. Lacks the large claws of Maine lobster.", details:"The Caribbean Spiny Lobster has no claws. They shelter in groups under ledges with their long spiny antennae waving outside. At night they emerge to feed on mollusks and urchins across the sandy bottom.", where:"Under ledges, in reef cracks, and at the base of large coral heads. Very common at most St. Thomas sites.", tip:"Shine your light deep under ledges — you may see a dozen antennae all waving at once. Do not disturb or handle.", tags:[["Shallow & Mid","d"],["Common","c"]]},
+  {id:9,  tid:41720,  emoji:"🐬", name:"Bottlenose Dolphin",     latin:"Tursiops truncatus",       type:"fish",        caution:false, depth:"Surface–40 ft", size:"6–12 ft",            desc:"Occasionally encountered while diving. Their intelligence and curiosity make any underwater interaction truly memorable.", details:"Bottlenose Dolphins are the most frequently sighted cetacean in USVI waters. While interactions during dives are rare, they occasionally investigate divers with curiosity. Their playfulness is immediately apparent.", where:"Open water passages between islands and occasionally over reef systems.", tip:"If dolphins appear during a dive, remain still and let them approach on their own terms. Forced pursuit drives them away.", tags:[["Open Water","d"],["Occasional","d"]]},
+  {id:10, tid:48966,  emoji:"🦐", name:"Banded Coral Shrimp",    latin:"Stenopus hispidus",        type:"reef",        caution:false, depth:"10–100 ft",    size:"Up to 2.5 in",       desc:"Striking red and white banded cleaner shrimp, seen in pairs at cleaning stations where fish line up to have parasites removed.", details:"The Banded Coral Shrimp operates cleaning stations where fish — including large predators — queue up and hold still to be cleaned. The shrimp pick parasites and dead tissue from bodies, gills, and even mouths.", where:"In crevices and under ledges throughout the reef. Look for them waving their long white antennae to advertise their services.", tip:"Watch quietly near a cleaning station — you might witness a Nassau Grouper holding completely still while the tiny shrimp works inside its mouth.", tags:[["Mid & Deep","d"],["Common","c"]]},
+  {id:11, tid:47229,  emoji:"🐠", name:"French Angelfish",       latin:"Pomacanthus paru",         type:"fish",        caution:false, depth:"10–100 ft",    size:"Up to 16 in",        desc:"Black body with golden scale edging, creating an intricate chainmail pattern. Nearly always seen in bonded pairs.", details:"The French Angelfish mates for life and is almost never seen alone. Their black bodies with each scale edged in gold create a mesmerizing pattern. Juveniles are black with yellow vertical stripes and serve as cleaner fish.", where:"Throughout reef structures at mid-depth. More common on deeper reefs than their Queen Angelfish cousins.", tip:"Spot the pair and watch their synchronized swimming. Juveniles at cleaning stations look entirely different from adults — both worth finding.", tags:[["Mid & Deep","d"],["Common","c"]]},
+  {id:12, tid:48419,  emoji:"🐍", name:"Green Moray Eel",        latin:"Gymnothorax funebris",     type:"reef",        caution:true,  depth:"3–100 ft",     size:"Up to 8 ft",         desc:"The largest moray eel in the Atlantic. Its constant gaping mouth is for breathing, not aggression.", details:"The Green Moray can reach 8 feet. Their green color is actually blue-grey skin covered in yellow mucus. They rhythmically open and close their mouths to push water over their gills. They hunt by scent with poor eyesight.", where:"In holes and crevices throughout all reef zones. Often found with a head poking out and swaying slowly.", tip:"Never put hands in reef crevices — moray bites cause severe lacerations. They won't attack unless provoked but have poor vision and may bite a hand that smells like fish.", tags:[["All Depths","d"],["Caution","w"]]},
+  {id:13, tid:48438,  emoji:"🐠", name:"Stoplight Parrotfish",   latin:"Sparisoma viride",         type:"fish",        caution:false, depth:"5–80 ft",      size:"Up to 22 in",        desc:"Vivid parrot-colored fish that eat coral, grinding it with beak-like teeth and excreting the famous white Caribbean sand.", details:"Parrotfish are crucial to reef health — they scrape algae off coral and produce much of the white sand on Caribbean beaches. Their beak-like fused teeth are often audible underwater. Males display vivid green, blue, and red.", where:"Throughout reef structures. Listen for the scraping sound of their feeding — one of the most common background noises on a healthy reef.", tip:"Listen carefully and you can hear the crunching of coral-scraping from several feet away. Watch for their sand-excreting behavior.", tags:[["Shallow & Mid","d"],["Very Common","c"]]},
+  {id:14, tid:11573,  emoji:"🎏", name:"Lionfish",               latin:"Pterois volitans",         type:"fish",        caution:true,  depth:"3–300 ft",     size:"Up to 15 in",        desc:"An invasive Indo-Pacific species devastating Caribbean reefs. Ornate and beautiful, but its dorsal spines deliver a painful venomous sting.", details:"The Lionfish is an ecological crisis in beautiful packaging. Introduced via the aquarium trade, they have no natural predators here and reproduce explosively. They are devastating juvenile reef fish populations throughout the Caribbean.", where:"Everywhere — from shallow reef flats to deep walls. Common at nearly every St. Thomas dive site. Often hover under ledge overhangs.", tip:"Do not touch under any circumstances. Spines deliver a severe venomous sting requiring hot water treatment. Alert your divemaster if you spot one.", tags:[["All Depths","d"],["Invasive","w"],["Caution","w"]]},
+  {id:15, tid:118218, emoji:"🦀", name:"Arrow Crab",             latin:"Stenorhynchus seticornis", type:"reef",        caution:false, depth:"10–100 ft",    size:"Body up to 2 in",    desc:"A bizarre spider-like crab with an extremely elongated triangular body and impossibly thin legs, usually perched on corals or sponges.", details:"Arrow Crabs are one of the reef's most otherworldly creatures. Their tiny triangular body, long pointed rostrum, and extremely long spindly legs give them an extraterrestrial appearance. Often found near tube anemones and sponges.", where:"On sponges, sea fans, and corals throughout the reef. Look carefully — their camouflage can make them hard to spot despite their unusual shape.", tip:"Very photogenic once located. Use your dive light to illuminate them against dark backgrounds. They rarely move quickly and make great macro subjects.", tags:[["Mid & Deep","d"],["Common","c"]]},
+  {id:16, tid:47225,  emoji:"🐟", name:"Nassau Grouper",         latin:"Epinephelus striatus",     type:"fish",        caution:false, depth:"5–130 ft",     size:"Up to 4 ft",         desc:"A large, critically endangered reef predator. Tan with brown vertical bars and a distinctive black dot at the tail base.", details:"The Nassau Grouper is one of the Caribbean's most important and most threatened reef fish. Heavily overfished for decades, seeing a large adult is a special event. They can change color pattern to blend with different backgrounds.", where:"Around large coral structures, reef caves, and drop-offs. More commonly seen at protected dive sites.", tip:"Nassau Groupers are notably curious and may follow divers at a distance. Seeing one is a sign of a very healthy, well-protected reef.", tags:[["Shallow & Deep","d"],["Endangered","w"]]},
+  {id:17, tid:481822, emoji:"💫", name:"Southern Stingray",      latin:"Hypanus americanus",       type:"elasmobranch", caution:true,  depth:"1–50 ft",      size:"Up to 5 ft disc",    desc:"A flat, diamond-shaped ray commonly seen gliding over sandy bottoms or buried just beneath the sand surface.", details:"Southern Stingrays glide over sandy areas adjacent to reefs. They use electrosensory organs to detect crabs, clams, and worms buried in sand. During feeding they flap their wings to disturb the sand, creating a small crater.", where:"Sandy flats and seagrass beds near reef edges. Also commonly found between coral heads and in lagoon areas.", tip:"The stingray shuffle — sliding feet rather than stepping — is important in shallow sandy areas to avoid stepping on a buried ray and triggering its defensive tail whip.", tags:[["Sandy Bottom","d"],["Common","c"],["Caution","w"]]},
+  {id:18, tid:47216,  emoji:"🐠", name:"Blue Tang",              latin:"Acanthurus coeruleus",     type:"fish",        caution:true,  depth:"3–90 ft",      size:"Up to 15 in",        desc:"Vivid royal blue surgeonfish — the species that inspired Dory in Finding Nemo. Has a sharp scalpel-like spine at the base of its tail.", details:"One of the most visually striking reef fish in the Caribbean. As a surgeonfish, they carry a razor-sharp spine at the base of the tail for defense. Juveniles are bright yellow and transition through phases to the adult blue.", where:"Throughout reef structures, particularly where there is abundant algae growth. Often seen in groups grazing across reef surfaces.", tip:"Never handle or grab a Blue Tang — the scalpel spine inflicts a serious cut. Juveniles are bright yellow — a notable transformation to watch for.", tags:[["All Depths","d"],["Very Common","c"],["Caution","w"]]},
+  {id:19, tid:54942,  emoji:"🌊", name:"Spotted Eagle Ray",      latin:"Aetobatus narinari",       type:"elasmobranch", caution:false, depth:"10–100 ft",    size:"Up to 9 ft wingspan", desc:"One of the ocean's most majestic sights — a large spotted ray with a long whip tail, often seen soaring past open reef edges.", details:"The Spotted Eagle Ray flies through the water with their pectoral fins. Their white-spotted dark backs and brilliant white undersides are unmistakable. They occasionally breach the surface entirely. Seeing one glide past a reef wall is unforgettable.", where:"Reef drop-offs and blue water adjacent to reefs. Often seen passing slowly along walls. Occasionally spotted in groups of 5–10.", tip:"Stay at the reef edge and watch the open blue water — Eagle Rays often cruise through the water column rather than hugging the bottom. Encountering a group is extraordinary.", tags:[["Mid & Deep","d"],["Occasional","d"]]},
+  {id:20, tid:50781,  emoji:"🌺", name:"Flamingo Tongue Snail",  latin:"Cyphoma gibbosum",         type:"reef",        caution:false, depth:"5–80 ft",      size:"Up to 1.5 in",       desc:"A small but striking snail with a vivid orange-spotted mantle draped over a white shell, found on sea fans and gorgonians.", details:"The Flamingo Tongue's vivid orange-spotted pattern is the snail's living mantle tissue draped over its plain white shell. When threatened it withdraws the mantle to reveal the plain shell underneath. They feed exclusively on sea fan tissue.", where:"On sea fans, purple sea plumes, and gorgonian corals throughout the reef. Look for them slowly crawling along fan branches.", tip:"Never remove one — their shells are plain white and the beautiful orange pattern disappears immediately upon death. Photograph in place instead.", tags:[["Shallow & Mid","d"],["Common","c"]]}
+];
+
+const TYPES = {fish:"Fish",reef:"Reef Creature",elasmobranch:"Shark / Ray",turtle:"Sea Turtle"};
+const photos = {};
+let activeFilter = "all", query = "", selected = null, imgErrors = {};
+
+async function fetchPhoto(tid) {
+  const r = await fetch(`https://api.inaturalist.org/v1/taxa/${tid}?fields=default_photo`);
+  const d = await r.json();
+  return d?.results?.[0]?.default_photo?.medium_url || null;
+}
+
+function filtered() {
+  return SPECIES.filter(s => {
+    const mf = activeFilter==="all"||(activeFilter==="caution"&&s.caution)||s.type===activeFilter;
+    const q = query.toLowerCase();
+    return mf && (!q || s.name.toLowerCase().includes(q) || s.latin.toLowerCase().includes(q));
+  });
+}
+
+function photoHTML(s, h) {
+  const url = photos[s.id];
+  if (url === undefined) return `<div class="photo-ph"><div class="ph-spin"></div><div class="ph-lbl">Loading</div></div>`;
+  if (url && !imgErrors[s.id]) return `<img src="${url}" alt="${s.name}" loading="lazy" onerror="imgErrors[${s.id}]=true;renderGrid()">`;
+  return `<div class="photo-ph"><div class="ph-emoji">${s.emoji}</div></div>`;
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  const list = filtered();
+  document.getElementById("count").textContent = `Showing ${list.length} of ${SPECIES.length} species`;
+  grid.innerHTML = "";
+  list.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.animationDelay = `${i * 0.035}s`;
+    div.innerHTML = `
+      <div class="photo">${photoHTML(s)}</div>
+      ${s.caution ? '<div class="caution-badge">⚠ Caution</div>' : ''}
+      <div class="info">
+        <div class="type">${TYPES[s.type]}</div>
+        <div class="name">${s.name}</div>
+        <div class="latin">${s.latin}</div>
+        <div class="desc">${s.desc}</div>
+        <div class="tags">${s.tags.map(([t,c]) => `<span class="tag tag-${c}">${t}</span>`).join("")}</div>
+      </div>`;
+    div.addEventListener("click", () => openModal(s));
+    grid.appendChild(div);
+  });
+}
+
+function updatePhoto(id) {
+  const s = SPECIES.find(x => x.id === id);
+  document.querySelectorAll(".card").forEach(card => {
+    if (card.querySelector(".name")?.textContent === s.name) {
+      card.querySelector(".photo").innerHTML = photoHTML(s);
+    }
+  });
+}
+
+function openModal(s) {
+  selected = s;
+  const url = photos[s.id];
+  const photoInner = (url && !imgErrors[s.id])
+    ? `<img src="${url}" alt="${s.name}" onerror="this.outerHTML='<div style=\\'font-size:72px;display:flex;align-items:center;justify-content:center;height:100%\\'>${s.emoji}</div>'">`
+    : `<div style="font-size:72px;display:flex;align-items:center;justify-content:center;height:100%">${s.emoji}</div>`;
+
+  const tipBox = s.caution
+    ? `<div class="caution-box"><div class="caution-lbl">⚠ Safety Note</div><div class="caution-body">${s.tip}</div></div>`
+    : `<div class="tip-box"><div class="tip-lbl">🤿 Diver Tip</div><div class="tip-body">${s.tip}</div></div>`;
+
+  document.getElementById("mcontent").innerHTML = `
+    <div class="modal-photo">${photoInner}</div>
+    <div class="modal-body">
+      <div class="modal-type">${TYPES[s.type]}</div>
+      <div class="modal-name">${s.name}</div>
+      <div class="modal-latin">${s.latin}</div>
+      <div class="divider"></div>
+      <div class="facts">
+        <div class="fact"><div class="fact-lbl">Typical Depth</div><div class="fact-val">${s.depth}</div></div>
+        <div class="fact"><div class="fact-lbl">Size</div><div class="fact-val">${s.size}</div></div>
+      </div>
+      <div class="sec-title">About</div>
+      <div class="sec-body">${s.details}</div>
+      <div class="sec-title">Where to Look</div>
+      <div class="sec-body">${s.where}</div>
+      ${tipBox}
+    </div>`;
+  document.getElementById("overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+document.getElementById("mclose").addEventListener("click", closeModal);
+document.getElementById("overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+document.querySelector(".controls").addEventListener("click", e => {
+  if (!e.target.classList.contains("btn")) return;
+  document.querySelectorAll(".btn").forEach(b => b.classList.remove("on"));
+  e.target.classList.add("on");
+  activeFilter = e.target.dataset.f;
+  renderGrid();
+});
+
+document.getElementById("search").addEventListener("input", e => {
+  query = e.target.value;
+  renderGrid();
+});
+
+renderGrid();
+
+// Load all photos via iNaturalist — free, no key needed
+(async () => {
+  const status = document.getElementById("status");
+  const prog = document.getElementById("prog");
+  let done = 0;
+  const BATCH = 4;
+  for (let i = 0; i < SPECIES.length; i += BATCH) {
+    await Promise.all(SPECIES.slice(i, i + BATCH).map(async s => {
+      try { photos[s.id] = await fetchPhoto(s.tid); }
+      catch { photos[s.id] = null; }
+      done++;
+      prog.textContent = `${done} / ${SPECIES.length}`;
+      updatePhoto(s.id);
+    }));
+    if (i + BATCH < SPECIES.length) await new Promise(r => setTimeout(r, 250));
+  }
+  status.classList.add("done");
+})();
+</script>
+</body>
+</html>
